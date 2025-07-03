@@ -1,11 +1,15 @@
 import Link from "next/link"
 import { fetchCountries } from "../lib/api"
-import NotFound from "../[country]/not-found"
+import NotFound from "./not-found"
 import CountryDetail from "../../components/CountryDetail"
 
-export default async function CountryPage({ params }: { params: { country: string } }) {
+export default async function CountryPage(props: {
+  params: Promise<{ country: string }>
+}) {
+  const { country: countryCode } = await props.params // 🔥 Asosiy yechim shu
+
   const countries = await fetchCountries()
-  const country = countries.find((c) => c.alpha3Code === params.country)
+  const country = countries.find((c) => c.alpha3Code === countryCode)
 
   if (!country) return <NotFound />
 
@@ -23,11 +27,12 @@ export default async function CountryPage({ params }: { params: { country: strin
   )
 }
 
-// app/[country]/page.tsx
 export async function generateStaticParams() {
   const countries = await fetchCountries()
 
-  return countries.map((country) => ({
-    country: country.alpha3Code,
-  }))
+  return countries
+    .filter((c) => typeof c.alpha3Code === "string")
+    .map((country) => ({
+      country: country.alpha3Code,
+    }))
 }
