@@ -22,3 +22,12 @@ export default async function CountryPage({ params }: { params: { country: strin
     </section>
   )
 }
+
+// app/[country]/page.tsx
+export async function generateStaticParams() {
+  const countries = await fetchCountries()
+
+  return countries.map((country) => ({
+    country: country.alpha3Code,
+  }))
+}
